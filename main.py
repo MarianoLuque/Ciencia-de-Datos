@@ -9,14 +9,14 @@ def leerArchivo():
     return df
 def contar(df, columna):
     """
-    Cuenta la cantidad de elementos de una columna
+    Cuenta la cantidad de elementos y nulos de una columna
     Args:
         :param df: Dataframe utilizado
         :param columna: Columna que se quiere contar los registros
     """
     cantidad = df[columna].value_counts()
-    cantidad = cantidad.fillna(-1)
-    return cantidad
+    nulos = df[columna].isnull().sum()
+    return (cantidad, nulos)
 def ordenar(tipoOrdenamiento, descendente, objeto):
     """
     Ordena los datos de acuerdo a los valores de X o de Y
@@ -37,11 +37,11 @@ def rotular(grafico, titulo, labelX, labelY):
     grafico.set_ylabel(labelY)
 def print_datos():
     df = leerArchivo()
-    cantidad = contar(df, "codigoCrimen1")
-    pd.set_option('display.max_rows', None)
+    cantidad, nulos = contar(df, "codigoCrimen1")
+    ordenados = ordenar(2, False, cantidad)
 
-    ordenados = ordenar(1, False, cantidad)
-    print(cantidad)
+    # ajustar para que se muestren todos los resultados por consola
+    pd.set_option('display.max_rows', None)
 
     # Generar el gráfico de barras
     grafico = ordenados.plot(kind='bar')
