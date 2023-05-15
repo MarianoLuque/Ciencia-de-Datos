@@ -32,6 +32,13 @@ def ordenar(tipoOrdenamiento, descendente, objeto):
     if tipoOrdenamiento == 2:
         return objeto.sort_values(ascending=ascendente)
 def rotular(grafico, titulo, labelX, labelY):
+    """
+    Agrega etiquetas al grafico
+    :param grafico: Gráfico a rotular
+    :param titulo: Título del gráfico
+    :param labelX: Etiqueta X
+    :param labelY: Etiqueta Y
+    """
     grafico.set_title(titulo)
     grafico.set_xlabel(labelX)
     grafico.set_ylabel(labelY)
@@ -56,6 +63,7 @@ def print_datos():
     # Configurar el eje X y el título del gráfico
     rotular(grafico, 'Cantidad de incidentes por área', 'Area', 'Cantidad de incidentes')
     # Mostrar grafico
+    print(df.describe())
     plt.show()
 
 def buscarVehiculos():
