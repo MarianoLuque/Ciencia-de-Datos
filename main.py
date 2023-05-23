@@ -22,11 +22,11 @@ def contar(df, columna, desde, hasta):
     cantidad = df[columna].value_counts()
     nulos = df[columna].isnull().sum()
     # Filtrar códigos de crimen con más de "desde" y menos de "hasta" crímenes asociados
-    if(desde != 0):
+    if desde != 0:
         cantidad = cantidad[cantidad >= desde]
-    if(hasta != 0):
+    if hasta != 0:
         cantidad = cantidad[cantidad <= hasta]
-    return (cantidad, nulos)
+    return cantidad, nulos
 
 
 def ordenar(tipoOrdenamiento, descendente, objeto):
@@ -58,28 +58,43 @@ def rotular(grafico, titulo, labelX, labelY):
     grafico.set_ylabel(labelY)
 
 
-def print_datos():
+def calcularPorcentajes(total, nulos, enRango, fueraRango):
+    porcentajeNulos = (nulos / total) * 100
+    porcentajeEnRango = (enRango / total) * 100
+    porcentajeFueraRango = (fueraRango / total) * 100
+    return porcentajeNulos, porcentajeEnRango, porcentajeFueraRango
+
+def valoresAModificar():
+    columna = "codigoCrimen"
+    desde = 2500
+    hasta = 50000
+    titulo = 'Cantidad de incidentes por codigo de crimen'
+    ejeX = 'Codigo crimen'
+    ejeY = 'Cantidad de incidentes'
+    return columna, desde, hasta, titulo, ejeX, ejeY
+
+def main():
     df = leerArchivo()
-    cantidad, nulos = contar(df, "edadVictima", 2300, 0)
+    columna, desde, hasta, titulo, ejeX, ejeY = valoresAModificar()
+    cantidad, nulos = contar(df, columna, desde, hasta)
     ordenados = ordenar(2, False, cantidad)
-    print(nulos)
 
-    # Calculando el porcentaje de registros con cantidad de crímenes dentro del rango
-    total_registros = len(df)
-    cantidad_rango = cantidad.sum() + nulos
-    print(cantidad_rango)  # Suma de la cantidad de crímenes dentro del rango
-    porcentaje_rango = (cantidad_rango / total_registros) * 100
-    
-    # Contando la cantidad de códigos de crimen dentro del rango
-    cantidad_codigos_rango = len(cantidad)
+    # Datos para calcular porcentajes
+    totalRegistros = len(df) # cantidad de datos que tiene el registro
+    cantidadRegistrosRango = cantidad.sum() # cantidad de datos dentro de desde-hasta
+    cantidadRegistrosFueraRango = totalRegistros - cantidadRegistrosRango - nulos
+    cantidadValoresRango = len(cantidad) # cantidad de valores unicos dentro de desde-hasta
+    cantidadValoresFueraRango = len(df[columna].unique()) - cantidadValoresRango # cantidad de valores unicos fuera de desde-hasta
+    porcentajeNulos, porcentajeEnRango, porcentajeFueraRango = calcularPorcentajes(totalRegistros, nulos, cantidadRegistrosRango, cantidadRegistrosFueraRango)
 
-    # Contando la cantidad de códigos de crimen fuera del rango (< 5000)
-    cantidad_codigos_fuera_rango = len(df["edadVictima"].unique()) - cantidad_codigos_rango
-
-    print(f"Porcentaje de registros con cantidad de crímenes dentro del rango: {porcentaje_rango:.2f}%")
-    print(f"Cantidad de códigos de crimen dentro del rango: {cantidad_codigos_rango}")
-    print(f"Cantidad de códigos de crimen fuera del rango (< 5000): {cantidad_codigos_fuera_rango}")
-    
+    print(f"**Nulos**\nCantidad de registros con nulos: {nulos}")
+    print(f"Porcentaje de registros con nulos: {porcentajeNulos:.2f}%")
+    print(f"**Cantidad en rango**\nCantidad de registros dentro del rango: {cantidadRegistrosRango}")
+    print(f"Porcentaje de registros dentro del rango: {porcentajeEnRango:.2f}%")
+    print(f"**Cantidad fuera rango**\nCantidad de registros fuera del rango: {cantidadRegistrosFueraRango}")
+    print(f"Porcentaje de registros fuera del rango: {porcentajeFueraRango:.2f}%")
+    print(f"**Valores unicos**\nCantidad de valores unicos dentro del rango (desde {desde} hasta {hasta}): {cantidadValoresRango}")
+    print(f"Cantidad de valores unicos fuera del rango (desde {desde} hasta {hasta}): {cantidadValoresFueraRango}")
 
     # ajustar para que se muestren todos los resultados por consola
     pd.set_option('display.max_rows', None)
@@ -97,44 +112,11 @@ def print_datos():
         grafico.text(i, v + 1000, str(round(v, 2)), ha='center', fontweight='bold', fontsize=8, rotation='vertical')
 
     # Rotular los ejes y el título del gráfico
-    rotular(grafico, 'Cantidad de incidentes por estado', 'Estado', 'Cantidad de incidentes')
+    rotular(grafico, titulo, ejeX, ejeY)
     # Mostrar grafico
-    plt.show()
-
-
-def buscarVehiculos():
-    # Definir el archivo y leerlo
-    filename = 'datos.csv'
-    df = pd.read_csv(filename, header=0)
-
-    # Cuenta la cantidad de filas que contienen "vehicle" en la columna "CRM CD DESC"
-    count = len(df[df['LAT'] > 0])
-
-    # Imprime el resultado
-    print(f"El archivo tiene {count} filas que contienen 'vehicle' en la columna 'CRM CD DESC'.")
-
-
-def ejemploProfe():
-    # dado dos conjuntos de datos:
-    high_var_array = np.array([5001, 5000, 5000, 5000, 5000, 5000])
-    low_var_array = np.array([2, 4, 6, 8, 10])
-
-    # Obtener la varianza
-    varianza1 = np.var(high_var_array)
-    varianza2 = np.var(low_var_array)
-    # y la desviación estándar
-    devstd1 = np.std(high_var_array)
-    devstd2 = np.std(low_var_array)
-    # y la media
-    media1 = np.mean(high_var_array)
-    media2 = np.mean(low_var_array)
-
-    plt.hist(high_var_array)
-    plt.show()
-    plt.hist(low_var_array)
     plt.show()
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_datos()
+    main()
