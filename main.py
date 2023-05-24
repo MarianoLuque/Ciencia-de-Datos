@@ -1,6 +1,8 @@
+from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
 
 def leerArchivo():
@@ -64,18 +66,76 @@ def calcularPorcentajes(total, nulos, enRango, fueraRango):
     porcentajeFueraRango = (fueraRango / total) * 100
     return porcentajeNulos, porcentajeEnRango, porcentajeFueraRango
 
+
+def filtrar_por_percentiles(df, columna, percentile_desde, percentile_hasta):
+    """
+    Filtra los registros de un DataFrame por percentiles en una columna dada.
+
+    Args:
+        df (pandas.DataFrame): DataFrame a filtrar.
+        columna (str): Nombre de la columna en la que se aplicará el filtro.
+        percentile_desde (float): Percentil desde el cual se incluirán los registros.
+        percentile_hasta (float): Percentil hasta el cual se incluirán los registros.
+
+    Returns:
+        pandas.DataFrame: DataFrame filtrado por percentiles.
+    """
+    valor_desde = np.percentile(df[columna], percentile_desde)
+    valor_hasta = np.percentile(df[columna], percentile_hasta)
+    df_filtrado = df.loc[(df[columna] >= valor_desde) & (df[columna] <= valor_hasta)]
+    return df_filtrado
+
 def valoresAModificar():
-    columna = "codigoCrimen"
-    desde = 2500
-    hasta = 50000
-    titulo = 'Cantidad de incidentes por codigo de crimen'
-    ejeX = 'Codigo crimen'
+    columna = "fecha"
+    desde = 0
+    hasta = 0
+    percentile_desde = 0
+    percentile_hasta = 100
+    titulo = 'Cantidad de incidentes por mes'
+    ejeX = 'Mes'
     ejeY = 'Cantidad de incidentes'
-    return columna, desde, hasta, titulo, ejeX, ejeY
+    return columna, desde, hasta, titulo, ejeX, ejeY, percentile_desde, percentile_hasta
+
+def recortarHoras(df):
+    df['hora'] = df['horaAcontecimiento'].apply(lambda x: str(x).zfill(4)[:2])
+    return df
+
+def agrupar_por_fecha(df):
+    # Convertir la columna fecha a tipo datetime
+    df['fechaAcontecimiento'] = pd.to_datetime(df['fechaAcontecimiento'], errors='coerce')
+
+    # Extraer el mes de la fecha
+    df['fecha'] = df['fechaAcontecimiento'].dt.strftime('%b')
+
+    return df
+
+
+def filtrar_edad_victima(df, desde, hasta):
+    """
+    Filtra la columna 'edadVictima' de un DataFrame según los parámetros 'desde' y 'hasta'.
+
+    Args:
+        df (pandas.DataFrame): DataFrame a filtrar.
+        desde (int): Valor mínimo para la edad.
+        hasta (int): Valor máximo para la edad.
+
+    Returns:
+        pandas.DataFrame: DataFrame filtrado por edadVictima.
+    """
+    df_filtrado = df.loc[(df['edadVictima'] >= desde) & (df['edadVictima'] <= hasta)]
+    return df_filtrado
+
+def graficarEntreVariables(df, bin_size):
+    sns.pairplot(data=df, vars=['edadVictima', 'codigoCrimen', 'areaNro'], markers='+', diag_kws={'bins': bin_size})
+    plt.show()
 
 def main():
     df = leerArchivo()
-    columna, desde, hasta, titulo, ejeX, ejeY = valoresAModificar()
+    df_filtrado = df
+    columna, desde, hasta, titulo, ejeX, ejeY, percentile_desde, percentile_hasta = valoresAModificar()
+    df = agrupar_por_fecha(df)
+    df_filtrado = recortarHoras(df)
+    df_filtrado = filtrar_edad_victima(df, 18, 75)
     cantidad, nulos = contar(df, columna, desde, hasta)
     ordenados = ordenar(2, False, cantidad)
 
@@ -103,9 +163,9 @@ def main():
     grafico = ordenados.plot(kind='bar')
 
     # Modificando etiquetas de eje X (pone los nros verticales)
-    grafico.set_xticklabels(ordenados.index, rotation=90)
-    #Para no mostrar una etiqueta
-    #grafico.set_xticklabels([])
+    grafico.set_xticklabels(ordenados.index, rotation=0)
+    # Para no mostrar una etiqueta
+    # grafico.set_xticklabels([])
 
     # Agregar etiquetas con los valores de cada barra
     for i, v in enumerate(ordenados):
@@ -116,6 +176,9 @@ def main():
     # Mostrar grafico
     plt.show()
 
+    graficarEntreVariables(df_filtrado, 20)
+    print(df['edadVictima'].describe())
+    print(df_filtrado['edadVictima'].describe())
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
