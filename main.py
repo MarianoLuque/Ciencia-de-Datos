@@ -8,13 +8,13 @@ from graficar import *
 from imprimir import *
 
 def valoresAModificar():
-    columna = "edadVictima"
+    columna = "sexoVictima"
     desde = 0
     hasta = 0
     percentile_desde = 0
     percentile_hasta = 100
-    titulo = 'Cantidad de incidentes por edad de la victima'
-    ejeX = 'Edad de la victima'
+    titulo = 'Cantidad de incidentes por sexo de la victima'
+    ejeX = 'Sexo de la victima'
     ejeY = 'Cantidad de incidentes'
     return columna, desde, hasta, titulo, ejeX, ejeY, percentile_desde, percentile_hasta
 
@@ -23,7 +23,6 @@ def main():
     df = leerArchivo()
     df_filtrado = df
     columna, desde, hasta, titulo, ejeX, ejeY, percentile_desde, percentile_hasta = valoresAModificar()
-    df_filtrado = filtrar_por_percentiles(df, columna, percentile_desde, percentile_hasta)
     df_filtrado = agrupar_por_fecha(df_filtrado)
     df_filtrado = agrupar_por_hora(df_filtrado)
     df_filtrado = filtrar_por_sexo(df_filtrado)
@@ -33,7 +32,11 @@ def main():
     cantidad, nulos = contar(df_filtrado, columna, desde, hasta)
     ordenados = ordenar(1, True, cantidad)
 
-    graficoDeColores(df_filtrado)
+    #graficoDeColores(df_filtrado)
+    #crear_diagrama_calor(df_filtrado, "Diagrama de Calor")
+    #graficarMapa(df_filtrado)
+    #dispersionCategoric(df_filtrado, 'sexoVictima', 'codigoCrimen')
+    dispersion(df_filtrado)
 
     # Datos para calcular porcentajes
     totalRegistros = len(df_filtrado) # cantidad de datos que tiene el registro
@@ -58,7 +61,7 @@ def main():
 
     # Agregar etiquetas con los valores de cada barra
     for i, v in enumerate(ordenados):
-        grafico.text(i, v + 500, str(round(v, 2)), ha='center', fontweight='bold', fontsize=8, rotation='vertical')
+        grafico.text(i, v + 3000, str(round(v, 2)), ha='center', fontweight='bold', fontsize=8, rotation='vertical')
 
     # Rotular los ejes y el título del gráfico
     rotular(grafico, titulo, ejeX, ejeY)
@@ -66,6 +69,8 @@ def main():
     plt.show()
 
     # graficarEntreVariables(df_filtrado, 20)
+
+    
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':

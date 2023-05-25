@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def (filtrar_por_percentilesdf, columna, percentile_desde, percentile_hasta):
+def filtrar_por_percentiles(df, columna, percentile_desde, percentile_hasta):
     """
     Filtra los registros de un DataFrame por percentiles en una columna dada.
 
@@ -53,7 +53,6 @@ def filtrar_por_edad(df, columna, desde, hasta):
     cantidad_registros = mask.sum()
     valores_aleatorios = np.random.randint(desde, hasta + 1, size=cantidad_registros)
     df_filtrado.loc[mask, columna] = valores_aleatorios
-
     return df_filtrado
 
 def filtrar_por_sexo(df):
