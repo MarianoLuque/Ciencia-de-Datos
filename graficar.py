@@ -3,6 +3,8 @@ import seaborn as sns
 from mpl_toolkits.basemap import Basemap
 import pandas as pd
 from sklearn.decomposition import PCA
+from scipy.stats import chi2_contingency
+from scipy.stats import chi2
 
 def graficarMapa(df):
     mapa = Basemap(projection='merc', llcrnrlat=-90, urcrnrlat=90, llcrnrlon=-180, urcrnrlon=180)
@@ -72,3 +74,43 @@ def dispersionCategoric(df, categoria, valor):
 def dispersion(df):
     plt.scatter(df['latitud'], df['edadVictima'], c=df['edadVictima'])
     plt.show()
+
+def mapaCalor(df):
+    # Mapear los valores categóricos a valores numéricos
+    df['sexo_numerico'] = df['sexoVictima'].map({'M': 1, 'F': 2, 'X': 3})
+
+    columnas_seleccionadas = ['areaNro', 'edadVictima', 'sexo_numerico']
+    data_seleccionada = df[columnas_seleccionadas]
+    correlacion = data_seleccionada.corr()
+    sns.heatmap(correlacion, cmap='YlGnBu', annot=True)
+
+def chiCuadrado(df):
+    # Calcular la tabla de contingencia
+    tabla_contingencia = pd.crosstab(df['sexoVictima'], df['codigoCrimen'])
+    # Realizar el test de chi-cuadrado
+    chiDos, pval, _, _ = chi2_contingency(tabla_contingencia)
+
+    # Imprimir los resultados
+    print(f'Estadístico chi-cuadrado: {chiDos}')
+    print(f'Valor p: {pval}')
+
+    # Definir umbral de significancia
+    nivel_significancia = 0.05
+
+    # Comparar el valor p con el umbral de significancia
+    if pval < nivel_significancia:
+        print("Hay una asociación significativa entre las variables.")
+    else:
+        print("No se encontró una asociación significativa entre las variables.")
+    
+    # Calcular el número de grados de libertad
+    grados_libertad = (tabla_contingencia.shape[0] - 1) * (tabla_contingencia.shape[1] - 1)
+
+    # Obtener el valor crítico de chi-cuadrado
+    valor_critico = chi2.ppf(1 - nivel_significancia, grados_libertad)
+
+    # Comparar el valor chi2 con el valor crítico
+    if chiDos > valor_critico:
+        print("Hay una discrepancia significativa entre los valores observados y los valores esperados.")
+    else:
+        print("No se encontró una discrepancia significativa.")

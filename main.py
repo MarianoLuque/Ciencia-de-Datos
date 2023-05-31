@@ -36,7 +36,9 @@ def main():
     #crear_diagrama_calor(df_filtrado, "Diagrama de Calor")
     #graficarMapa(df_filtrado)
     #dispersionCategoric(df_filtrado, 'sexoVictima', 'codigoCrimen')
-    dispersion(df_filtrado)
+    #dispersion(df_filtrado)
+    mapaCalor(df_filtrado)
+    chiCuadrado(df_filtrado)
 
     # Datos para calcular porcentajes
     totalRegistros = len(df_filtrado) # cantidad de datos que tiene el registro
