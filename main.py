@@ -6,9 +6,10 @@ from funciones import *
 from agruparYfiltrar import *
 from graficar import *
 from imprimir import *
+import missingno as msno
 
 def valoresAModificar():
-    columna = "sexoVictima"
+    columna = "fecha"
     desde = 0
     hasta = 0
     percentile_desde = 0
@@ -22,6 +23,8 @@ def valoresAModificar():
 def main():
     df = leerArchivo()
     df_filtrado = df
+    msno.matrix(df)
+    plt.show()
     columna, desde, hasta, titulo, ejeX, ejeY, percentile_desde, percentile_hasta = valoresAModificar()
     df_filtrado = agrupar_por_fecha(df_filtrado)
     df_filtrado = agrupar_por_hora(df_filtrado)
@@ -32,13 +35,13 @@ def main():
     cantidad, nulos = contar(df_filtrado, columna, desde, hasta)
     ordenados = ordenar(1, True, cantidad)
 
+
     #graficoDeColores(df_filtrado)
     #crear_diagrama_calor(df_filtrado, "Diagrama de Calor")
     #graficarMapa(df_filtrado)
     #dispersionCategoric(df_filtrado, 'sexoVictima', 'codigoCrimen')
     #dispersion(df_filtrado)
-    mapaCalor(df_filtrado)
-    chiCuadrado(df_filtrado)
+    #mapaDeCalor(df_filtrado)
 
     # Datos para calcular porcentajes
     totalRegistros = len(df_filtrado) # cantidad de datos que tiene el registro

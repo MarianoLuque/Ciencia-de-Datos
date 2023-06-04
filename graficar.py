@@ -36,7 +36,32 @@ def graficoDeColores(df):
     sns.despine(left=True)
     plt.show()
 
-def crear_diagrama_calor(df, title):
+
+def dispersionCategoric(df, categoria, valor):
+    # Gráfico de caja y bigotes
+    sns.boxplot(x=categoria, y=valor, data=df)
+    plt.show()
+    # Gráfico de violín
+    sns.violinplot(x=categoria, y=valor, data=df)
+    plt.show()
+    # Gráfico de punto
+    sns.stripplot(x=categoria, y=valor, data=df)
+    plt.show()
+
+def dispersion(df):
+    plt.scatter(df['latitud'], df['edadVictima'], c=df['edadVictima'])
+    plt.show()
+
+def mapaCalor(df):
+    # Mapear los valores categóricos a valores numéricos
+    df['sexo_numerico'] = df['sexoVictima'].map({'M': 1, 'F': 2, 'X': 3})
+
+    columnas_seleccionadas = ['codigoCrimen', 'sexo_numerico']
+    data_seleccionada = df[columnas_seleccionadas]
+    correlacion = data_seleccionada.corr()
+    sns.heatmap(correlacion, cmap='YlGnBu', annot=True)
+
+def crear_diagrama_calor(df):
     """
     Crea un diagrama de calor (heatmap) para un conjunto de datos.
 
@@ -60,29 +85,31 @@ def crear_diagrama_calor(df, title):
     # Muestra el mapa de calor
     plt.show()
 
-def dispersionCategoric(df, categoria, valor):
-    # Gráfico de caja y bigotes
-    sns.boxplot(x=categoria, y=valor, data=df)
-    plt.show()
-    # Gráfico de violín
-    sns.violinplot(x=categoria, y=valor, data=df)
-    plt.show()
-    # Gráfico de punto
-    sns.stripplot(x=categoria, y=valor, data=df)
-    plt.show()
+def mapaDeCalor(df):
+    
+    df = df.copy()  # Hacer una copia del DataFrame
+    # Convertir todas las columnas del DataFrame a tipo float
+    # Eliminar la columna con datos de tipo Datetime
+    df.loc[:, 'fecha_numerico'] = df['fecha'].map({'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12})
+    df.loc[:, 'sexo_numerico'] = df['sexoVictima'].map({'M': 1, 'F': 2, 'X': 3})
+    df.loc[:, 'descendencia_numerico'] = df['descendenciaVictima'].map({'H': 1, 'W': 2, 'B': 3, 'X':4, 'O':5, 'A':6})
+    #df['estado_numerico'] = df['estado'].map({'IC': 1, 'AO': 2, 'AA': 3})
+    
+    columnas = ['fecha_numerico', 'hora', 'areaNro', 'codigoCrimen',  'edadVictima', 'sexo_numerico', 'descendencia_numerico']
+    df = df[columnas] 
+    df = df.astype(float)
+    # Crear un mapa de calor a partir del DataFrame
+    plt.imshow(df, cmap='hot', interpolation='nearest')
 
-def dispersion(df):
-    plt.scatter(df['latitud'], df['edadVictima'], c=df['edadVictima'])
+    # Agregar etiquetas a los ejes x e y
+    plt.xticks(range(len(df.columns)), df.columns)
+    plt.yticks(range(len(df.index)), df.index)
+
+    # Agregar una barra de colores para indicar los valores
+    plt.colorbar()
+
+    # Mostrar el mapa de calor
     plt.show()
-
-def mapaCalor(df):
-    # Mapear los valores categóricos a valores numéricos
-    df['sexo_numerico'] = df['sexoVictima'].map({'M': 1, 'F': 2, 'X': 3})
-
-    columnas_seleccionadas = ['areaNro', 'edadVictima', 'sexo_numerico']
-    data_seleccionada = df[columnas_seleccionadas]
-    correlacion = data_seleccionada.corr()
-    sns.heatmap(correlacion, cmap='YlGnBu', annot=True)
 
 def chiCuadrado(df):
     # Calcular la tabla de contingencia

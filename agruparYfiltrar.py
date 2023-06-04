@@ -48,19 +48,16 @@ def filtrar_por_edad(df, columna, desde, hasta):
     Returns:
         pandas.DataFrame: DataFrame filtrado y distribuido aleatoriamente por edadVictima.
     """
-    df_filtrado = df.copy()
-    mask = (df_filtrado[columna] < desde) | (df_filtrado[columna] > hasta)
+    mask = (df[columna] < desde) | (df[columna] > hasta)
     cantidad_registros = mask.sum()
     valores_aleatorios = np.random.randint(desde, hasta + 1, size=cantidad_registros)
-    df_filtrado.loc[mask, columna] = valores_aleatorios
-    return df_filtrado
+    df.loc[mask, columna] = valores_aleatorios
+    return df
 
 def filtrar_por_sexo(df):
     df['sexoVictima'] = df['sexoVictima'].fillna('X')  # Rellenar valores nulos con 'X'
     df['sexoVictima'] = df['sexoVictima'].replace(['H'], 'X')
-    filtro = (df['sexoVictima'] == 'M') | (df['sexoVictima'] == 'F') | (df['sexoVictima'] == 'X')
-    df_filtrado = df[filtro]
-    return df_filtrado
+    return df
 
 def filtrar_por_codigo_crimen(df):
     codigo_crimen = [510, 624, 354, 330, 740, 310, 230, 440, 626, 420, 331, 210, 341, 745, 930, 442, 761, 888, 236, 901, 480, 956, 946, 900]
@@ -68,8 +65,6 @@ def filtrar_por_codigo_crimen(df):
     return df_filtrado
 
 def filtrar_por_descendencia(df):
-    df['descendenciaVictima'] = df['descendenciaVictima'].fillna('X')  # Rellenar valores nulos con 'X'
-    df['descendenciaVictima'] = df['descendenciaVictima'].replace(['K', 'F', 'C', 'J', 'V', 'I', 'Z', 'P', 'U', 'D', 'G', 'L', 'S', '-'], 'O')
-    descendencia = ['H', 'W', 'B', 'X', 'O', 'A']
-    df_filtrado = df[df['descendenciaVictima'].isin(descendencia)]
-    return df_filtrado
+    df.loc[:, 'descendenciaVictima'] = df['descendenciaVictima'].fillna('X')  # Rellenar valores nulos con 'X'
+    df.loc[:, 'descendenciaVictima'] = df['descendenciaVictima'].replace(['K', 'F', 'C', 'J', 'V', 'I', 'Z', 'P', 'U', 'D', 'G', 'L', 'S', '-'], 'O')
+    return df
